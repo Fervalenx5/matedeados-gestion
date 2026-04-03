@@ -7,7 +7,34 @@ document.getElementById('dash-date').textContent =
 
 async function loadDashboard() {
   try {
-    const d = await API.getDashboard();
+    // Traer datos del dashboard Y todas las ventas en paralelo
+    const [d, todasVentas] = await Promise.all([
+      API.getDashboard(),
+      API.getVentas()
+    ]);
+
+    // Calcular ventas del día y del mes en el frontend
+    // porque el servidor tiene problemas con el formato de fecha de Google Sheets
+    const hoyISO = todayISO(); // 'yyyy-MM-dd'
+    const mesISO = hoyISO.substring(0, 7); // 'yyyy-MM'
+
+    let totalHoy = 0, cantHoy = 0, totalMes = 0, cantMes = 0;
+    todasVentas.forEach(v => {
+      const fechaVenta = String(v.fecha || '').substring(0, 10); // '2026-04-03' de ISO
+      if (fechaVenta === hoyISO) {
+        totalHoy += parseFloat(v.total || 0);
+        cantHoy++;
+      }
+      if (fechaVenta.substring(0, 7) === mesISO) {
+        totalMes += parseFloat(v.total || 0);
+        cantMes++;
+      }
+    });
+
+    // Sobreescribir los valores del servidor con los calculados localmente
+    d.ventasHoy = { cantidad: cantHoy, total: totalHoy };
+    d.ventasMes = { cantidad: cantMes, total: totalMes };
+
     renderMetrics(d);
     renderUltimasVentas(d.ultimasVentas ?? []);
     renderStockBajo(d.stockBajoList ?? []);
