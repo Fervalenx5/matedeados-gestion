@@ -89,6 +89,15 @@ function hoy() {
   return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
 }
 
+/** Convierte un valor de fecha (Date o string) a formato yyyy-MM-dd */
+function formatDateValue(val) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    return Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return String(val).substring(0, 10);
+}
+
 function findRow(sheet, colIndex, value) {
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
@@ -173,8 +182,8 @@ function getVentas(params) {
 
   if (params.cliente)    ventas = ventas.filter(v => String(v.cliente).toLowerCase().includes(params.cliente.toLowerCase()));
   if (params.productoId) ventas = ventas.filter(v => String(v.productoId) === params.productoId);
-  if (params.fechaDesde) ventas = ventas.filter(v => String(v.fecha).substring(0,10) >= params.fechaDesde);
-  if (params.fechaHasta) ventas = ventas.filter(v => String(v.fecha).substring(0,10) <= params.fechaHasta);
+  if (params.fechaDesde) ventas = ventas.filter(v => formatDateValue(v.fecha) >= params.fechaDesde);
+  if (params.fechaHasta) ventas = ventas.filter(v => formatDateValue(v.fecha) <= params.fechaHasta);
 
   ventas.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
   return { success: true, data: ventas };
@@ -299,8 +308,8 @@ function getDashboard() {
   const ventData   = getSheet(SHEET_VENTAS).getDataRange().getValues();
   const ventas     = ventData.slice(1).filter(r => r[0] !== '');
 
-  const ventasHoyArr = ventas.filter(v => String(v[1]).substring(0,10) === fechaHoy);
-  const ventasMesArr = ventas.filter(v => String(v[1]).substring(0,7) === mesActual);
+  const ventasHoyArr = ventas.filter(v => formatDateValue(v[1]) === fechaHoy);
+  const ventasMesArr = ventas.filter(v => formatDateValue(v[1]).substring(0,7) === mesActual);
 
   const totalHoy = ventasHoyArr.reduce((s, v) => s + parseFloat(v[7] || 0), 0);
   const totalMes = ventasMesArr.reduce((s, v) => s + parseFloat(v[7] || 0), 0);

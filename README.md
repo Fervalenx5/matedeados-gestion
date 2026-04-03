@@ -44,6 +44,7 @@ Guardá la imagen del logo como `assets/logo.png` en la carpeta del proyecto.
 3. Copiá el **ID del Spreadsheet** desde la URL:
    ```
    https://docs.google.com/spreadsheets/d/[ESTE_ES_EL_ID]/edit
+   
    ```
 
 ---
