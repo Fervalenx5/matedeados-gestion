@@ -32,45 +32,76 @@
       <div><h1>Ventas</h1><p>Registrá ventas y consultá el historial</p></div>
     </div>
 
-    <!-- Formulario nueva venta -->
+    <!-- Formulario nueva venta multi-producto -->
     <div class="card" style="margin-bottom:24px">
-      <div class="card-header"><span class="card-title">🛍️ Nueva venta</span></div>
-      <form id="form-venta" class="form-grid">
-        <div class="form-group">
-          <label class="form-label" for="venta-cliente">Cliente <span class="required">*</span></label>
-          <input id="venta-cliente" type="text" class="form-control" placeholder="Nombre del cliente" required />
+      <div class="card-header"><span class="card-title">🛒 Nueva venta</span></div>
+      <div style="padding:16px">
+
+        <!-- Datos del cliente -->
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group">
+            <label class="form-label" for="venta-cliente">Cliente <span class="required">*</span></label>
+            <input id="venta-cliente" type="text" class="form-control" placeholder="Nombre del cliente" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="venta-fecha">Fecha <span class="required">*</span></label>
+            <input id="venta-fecha" type="date" class="form-control" required />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="venta-fecha">Fecha <span class="required">*</span></label>
-          <input id="venta-fecha" type="date" class="form-control" required />
+
+        <!-- Agregar producto al carrito -->
+        <div style="background:var(--color-surface-2); border-radius:var(--radius-md); padding:14px; margin-bottom:14px">
+          <p style="font-weight:600; font-size:13px; color:var(--color-muted); margin-bottom:10px">➕ Agregar producto al carrito</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="cart-producto">Producto</label>
+              <select id="cart-producto" class="form-control">
+                <option value="">— Seleccioná —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cart-cantidad">Cantidad</label>
+              <input id="cart-cantidad" type="number" class="form-control" placeholder="1" min="1" value="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cart-precio">Precio unit. ($)</label>
+              <input id="cart-precio" type="number" class="form-control" placeholder="0" min="0" />
+            </div>
+            <div class="form-group" style="display:flex; align-items:flex-end">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-agregar-carrito" style="width:100%">➕ Agregar</button>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="venta-producto">Producto <span class="required">*</span></label>
-          <select id="venta-producto" class="form-control" required>
-            <option value="">— Seleccioná un producto —</option>
-          </select>
+
+        <!-- Carrito (lista de items) -->
+        <div id="carrito-container" style="display:none; margin-bottom:14px">
+          <div class="table-container" style="max-height:220px; overflow-y:auto">
+            <table>
+              <thead>
+                <tr><th>Producto</th><th>Cant.</th><th>Precio u.</th><th>Subtotal</th><th style="width:40px"></th></tr>
+              </thead>
+              <tbody id="tbody-carrito"></tbody>
+              <tfoot>
+                <tr style="background:var(--color-surface-2); font-weight:700">
+                  <td colspan="3" style="text-align:right">TOTAL</td>
+                  <td id="carrito-total" class="text-accent">$ 0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="venta-cantidad">Cantidad <span class="required">*</span></label>
-          <input id="venta-cantidad" type="number" class="form-control" placeholder="1" min="1" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="venta-precio">Precio unitario ($) <span class="required">*</span></label>
-          <input id="venta-precio" type="number" class="form-control" placeholder="0" min="0" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total estimado</label>
-          <div class="form-control" id="venta-total" style="background:var(--color-surface-2); color:var(--color-accent); font-weight:600">$ 0</div>
-        </div>
-        <div class="form-group span-2">
+
+        <!-- Notas y botones -->
+        <div class="form-group" style="margin-bottom:14px">
           <label class="form-label" for="venta-notas">Notas</label>
           <textarea id="venta-notas" class="form-control" placeholder="Observaciones opcionales…" rows="2"></textarea>
         </div>
-        <div style="grid-column:1/-1; display:flex; justify-content:flex-end; gap:8px;">
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button type="button" class="btn btn-outline" id="btn-limpiar-venta">Limpiar</button>
-          <button type="submit" class="btn btn-accent" id="btn-registrar-venta">✅ Registrar venta</button>
+          <button type="button" class="btn btn-accent" id="btn-registrar-venta" disabled>✅ Registrar venta</button>
         </div>
-      </form>
+      </div>
     </div>
 
     <!-- Historial -->
@@ -99,16 +130,7 @@
       <button class="btn btn-outline btn-sm" id="btn-limpiar-filtros" style="align-self:flex-end">Limpiar</button>
     </div>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cant.</th><th>Precio unit.</th><th>Total</th><th>Notas</th></tr>
-        </thead>
-        <tbody id="tbody-ventas">
-          <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="ventas-list"></div>
   </main>
 </div>
 

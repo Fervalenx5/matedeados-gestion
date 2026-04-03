@@ -1,13 +1,12 @@
-/** ventas.js */
+/** ventas.js — Multi-producto con carrito */
 if (!Auth.guard()) throw new Error('no auth');
 initSidebar('ventas');
 
 let productos = [];
-let todasVentas = [];
+let carrito = []; // Array de { productoId, productoNombre, cantidad, precioUnit, subtotal }
 
 /* ─── Init ─── */
 async function init() {
-  // Cargar productos para los selects
   try {
     productos = await API.getProductos();
     populateProductoSelects();
@@ -15,111 +14,228 @@ async function init() {
     showToast('Error al cargar productos: ' + err.message, 'error');
   }
 
-  // Fecha de hoy por defecto
   document.getElementById('venta-fecha').value = todayISO();
-
   await loadVentas();
 }
 
 function populateProductoSelects() {
-  const selectVenta = document.getElementById('venta-producto');
+  const selectCart = document.getElementById('cart-producto');
   const selectFiltro = document.getElementById('f-producto');
 
-  const ops = productos.map(p => `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} (stock: ${p.stock})</option>`).join('');
-  selectVenta.innerHTML  = `<option value="">— Seleccioná un producto —</option>` + ops;
-  selectFiltro.innerHTML = `<option value="">Todos</option>` + productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+  const ops = productos.map(p =>
+    `<option value="${p.id}" data-precio="${p.precio}" data-nombre="${p.nombre}">${p.nombre} (stock: ${p.stock})</option>`
+  ).join('');
+
+  selectCart.innerHTML = `<option value="">— Seleccioná —</option>` + ops;
+  selectFiltro.innerHTML = `<option value="">Todos</option>` +
+    productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
 }
 
-/* ─── Cálculo de total en tiempo real ─── */
-function calcTotal() {
-  const cant  = parseFloat(document.getElementById('venta-cantidad').value) || 0;
-  const prec  = parseFloat(document.getElementById('venta-precio').value)   || 0;
-  document.getElementById('venta-total').textContent = formatMoney(cant * prec);
-}
+/* ─── Carrito ─── */
 
-document.getElementById('venta-producto').addEventListener('change', function () {
+// Auto-fill precio al elegir producto
+document.getElementById('cart-producto').addEventListener('change', function () {
   const opt = this.selectedOptions[0];
   if (opt && opt.dataset.precio) {
-    document.getElementById('venta-precio').value = opt.dataset.precio;
-    calcTotal();
+    document.getElementById('cart-precio').value = opt.dataset.precio;
   }
 });
-document.getElementById('venta-cantidad').addEventListener('input', calcTotal);
-document.getElementById('venta-precio').addEventListener('input', calcTotal);
+
+// Agregar item al carrito
+document.getElementById('btn-agregar-carrito').addEventListener('click', () => {
+  const sel = document.getElementById('cart-producto');
+  const productoId = sel.value;
+  if (!productoId) { showToast('Seleccioná un producto', 'warning'); return; }
+
+  const opt = sel.selectedOptions[0];
+  const cantidad = parseInt(document.getElementById('cart-cantidad').value) || 1;
+  const precioUnit = parseFloat(document.getElementById('cart-precio').value) || 0;
+
+  if (precioUnit <= 0) { showToast('El precio debe ser mayor a 0', 'warning'); return; }
+
+  // Check si ya está en el carrito
+  const existing = carrito.find(c => c.productoId === productoId);
+  if (existing) {
+    existing.cantidad += cantidad;
+    existing.subtotal = existing.cantidad * existing.precioUnit;
+  } else {
+    carrito.push({
+      productoId,
+      productoNombre: opt.dataset.nombre,
+      cantidad,
+      precioUnit,
+      subtotal: cantidad * precioUnit,
+    });
+  }
+
+  renderCarrito();
+
+  // Reset inputs del agregar
+  sel.value = '';
+  document.getElementById('cart-cantidad').value = 1;
+  document.getElementById('cart-precio').value = '';
+});
+
+function removeFromCart(index) {
+  carrito.splice(index, 1);
+  renderCarrito();
+}
+
+function renderCarrito() {
+  const container = document.getElementById('carrito-container');
+  const tbody = document.getElementById('tbody-carrito');
+  const btnRegistrar = document.getElementById('btn-registrar-venta');
+
+  if (!carrito.length) {
+    container.style.display = 'none';
+    btnRegistrar.disabled = true;
+    return;
+  }
+
+  container.style.display = 'block';
+  btnRegistrar.disabled = false;
+
+  tbody.innerHTML = carrito.map((item, i) => `
+    <tr>
+      <td>${item.productoNombre}</td>
+      <td>${item.cantidad}</td>
+      <td>${formatMoney(item.precioUnit)}</td>
+      <td class="text-accent font-semi">${formatMoney(item.subtotal)}</td>
+      <td><button onclick="removeFromCart(${i})" class="btn btn-outline btn-sm" style="padding:2px 6px; font-size:12px; color:var(--color-danger)">✕</button></td>
+    </tr>
+  `).join('');
+
+  const total = carrito.reduce((s, i) => s + i.subtotal, 0);
+  document.getElementById('carrito-total').textContent = formatMoney(total);
+}
 
 /* ─── Registrar venta ─── */
-document.getElementById('form-venta').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const productoId = document.getElementById('venta-producto').value;
-  const producto = productos.find(p => p.id === productoId);
+document.getElementById('btn-registrar-venta').addEventListener('click', async () => {
+  const cliente = document.getElementById('venta-cliente').value.trim();
+  const fecha = document.getElementById('venta-fecha').value;
+  const notas = document.getElementById('venta-notas').value.trim();
 
-  const data = {
-    cliente:    document.getElementById('venta-cliente').value.trim(),
-    fecha:      document.getElementById('venta-fecha').value,
-    productoId,
-    cantidad:   parseInt(document.getElementById('venta-cantidad').value),
-    precioUnit: parseFloat(document.getElementById('venta-precio').value),
-    notas:      document.getElementById('venta-notas').value.trim(),
-  };
+  if (!cliente) { showToast('Ingresá el nombre del cliente', 'warning'); return; }
+  if (!fecha)   { showToast('Seleccioná la fecha', 'warning'); return; }
+  if (!carrito.length) { showToast('Agregá al menos un producto al carrito', 'warning'); return; }
 
   const btn = document.getElementById('btn-registrar-venta');
   btn.disabled = true; btn.textContent = 'Registrando…';
 
   try {
-    const res = await API.saveVenta(data);
-    showToast(`Venta registrada ✅ — Stock nuevo: ${res.nuevoStock}`);
+    // Enviar todos los items del carrito
+    const items = carrito.map(c => ({
+      productoId: c.productoId,
+      cantidad: c.cantidad,
+      precioUnit: c.precioUnit,
+    }));
+
+    const res = await API.saveVenta({ cliente, fecha, notas, items });
+    const totalVenta = carrito.reduce((s, i) => s + i.subtotal, 0);
+    showToast(`Venta registrada ✅ — ${carrito.length} producto(s) — Total: ${formatMoney(totalVenta)}`);
+
+    // Actualizar stock local
+    if (res && res.stockUpdates) {
+      res.stockUpdates.forEach(u => {
+        const prod = productos.find(p => p.id === u.productoId);
+        if (prod) prod.stock = u.nuevoStock;
+      });
+      populateProductoSelects();
+    }
+
     limpiarFormVenta();
-    // Actualizar stock reflejado en el select
-    if (producto) producto.stock = res.nuevoStock;
-    populateProductoSelects();
     await loadVentas();
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
-    btn.disabled = false; btn.textContent = '✅ Registrar venta';
+    btn.disabled = !carrito.length;
+    btn.textContent = '✅ Registrar venta';
   }
 });
 
 function limpiarFormVenta() {
-  document.getElementById('form-venta').reset();
+  document.getElementById('venta-cliente').value = '';
   document.getElementById('venta-fecha').value = todayISO();
-  document.getElementById('venta-total').textContent = '$ 0';
+  document.getElementById('venta-notas').value = '';
+  document.getElementById('cart-producto').value = '';
+  document.getElementById('cart-cantidad').value = 1;
+  document.getElementById('cart-precio').value = '';
+  carrito = [];
+  renderCarrito();
 }
 document.getElementById('btn-limpiar-venta').addEventListener('click', limpiarFormVenta);
 
-/* ─── Historial ─── */
+/* ─── Historial (agrupado por grupoId) ─── */
 async function loadVentas(filters = {}) {
-  document.getElementById('tbody-ventas').innerHTML =
-    `<tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>`;
+  const listContainer = document.getElementById('ventas-list');
+  listContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
   try {
-    todasVentas = await API.getVentas(filters);
-    renderVentas(todasVentas);
+    const ventas = await API.getVentas(filters);
+    renderVentasAgrupadas(ventas);
   } catch (err) {
     showToast(err.message, 'error');
-    document.getElementById('tbody-ventas').innerHTML =
-      `<tr><td colspan="7"><div class="alert alert-danger" style="margin:16px">⚠️ ${err.message}</div></td></tr>`;
+    listContainer.innerHTML = `<div class="alert alert-danger" style="margin:16px">⚠️ ${err.message}</div>`;
   }
 }
 
-function renderVentas(ventas) {
-  const tbody = document.getElementById('tbody-ventas');
+function renderVentasAgrupadas(ventas) {
+  const container = document.getElementById('ventas-list');
+
   if (!ventas.length) {
-    tbody.innerHTML = `<tr><td colspan="7">
-      <div class="empty-state"><span class="empty-icon">🛍️</span>
-        <h3>Sin ventas</h3><p>No hay ventas que coincidan con los filtros.</p>
-      </div></td></tr>`;
+    container.innerHTML = `<div class="card" style="padding:32px;text-align:center">
+      <span style="font-size:2.5rem">🛍️</span>
+      <h3 style="margin:8px 0 4px">Sin ventas</h3>
+      <p class="text-muted">No hay ventas que coincidan con los filtros.</p>
+    </div>`;
     return;
   }
-  tbody.innerHTML = ventas.map(v => `
-    <tr>
-      <td class="text-sm">${formatDate(v.fecha)}</td>
-      <td><strong>${v.cliente}</strong></td>
-      <td class="text-muted">${v.productoNombre}</td>
-      <td class="text-sm">${v.cantidad}</td>
-      <td class="text-sm">${formatMoney(v.precioUnit)}</td>
-      <td class="font-semi text-accent">${formatMoney(v.total)}</td>
-      <td class="text-muted text-sm">${v.notas || '—'}</td>
-    </tr>`).join('');
+
+  // Agrupar por grupoId (ventas con grupo = multi-item; sin grupo = legacy individual)
+  const grupos = {};
+  ventas.forEach(v => {
+    const key = v.grupoId || v.id; // legacy sales don't have grupoId
+    if (!grupos[key]) {
+      grupos[key] = {
+        grupoId: key,
+        fecha: v.fecha,
+        cliente: v.cliente,
+        notas: v.notas,
+        items: [],
+        total: 0,
+      };
+    }
+    grupos[key].items.push(v);
+    grupos[key].total += parseFloat(v.total || 0);
+  });
+
+  // Ordenar por fecha desc
+  const lista = Object.values(grupos).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+
+  container.innerHTML = lista.map(g => {
+    const itemsHtml = g.items.map(i =>
+      `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--color-border-light)">
+        <span>${i.productoNombre}</span>
+        <span class="text-muted text-sm" style="margin:0 8px">${i.cantidad} × ${formatMoney(i.precioUnit)}</span>
+        <span class="font-semi">${formatMoney(i.total)}</span>
+      </div>`
+    ).join('');
+
+    return `<div class="card" style="margin-bottom:12px">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
+        <div>
+          <span class="font-semi" style="font-size:15px">${g.cliente}</span>
+          <span class="text-muted text-sm" style="margin-left:8px">${formatDate(g.fecha)}</span>
+        </div>
+        <span class="badge badge-success" style="font-size:14px; padding:4px 12px">${formatMoney(g.total)}</span>
+      </div>
+      <div style="padding:8px 16px 12px">
+        ${itemsHtml}
+        ${g.notas ? `<p class="text-muted text-sm" style="margin-top:8px; font-style:italic">📝 ${g.notas}</p>` : ''}
+        ${g.items.length > 1 ? `<p class="text-sm text-muted" style="margin-top:6px">🛒 ${g.items.length} productos</p>` : ''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ─── Filtros ─── */

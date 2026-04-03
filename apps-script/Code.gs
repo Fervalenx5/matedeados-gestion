@@ -57,7 +57,7 @@ function doGet(e) {
 // ── HEADERS por hoja ──
 const HEADERS = {
   Productos:        ['ID','Nombre','Categoría','Precio','Stock','StockMin','Foto','Activo','FechaCreacion'],
-  Ventas:           ['ID','Fecha','Cliente','ProductoID','ProductoNombre','Cantidad','PrecioUnit','Total','Notas'],
+  Ventas:           ['ID','Fecha','Cliente','ProductoID','ProductoNombre','Cantidad','PrecioUnit','Total','Notas','GrupoID'],
   MovimientosStock: ['ID','Fecha','ProductoID','ProductoNombre','Tipo','Cantidad','StockAnterior','StockNuevo','Motivo'],
 };
 
@@ -167,7 +167,8 @@ function getVentas(params) {
     .filter(r => r[0] !== '')
     .map(r => ({
       id: r[0], fecha: r[1], cliente: r[2], productoId: r[3],
-      productoNombre: r[4], cantidad: r[5], precioUnit: r[6], total: r[7], notas: r[8]
+      productoNombre: r[4], cantidad: r[5], precioUnit: r[6], total: r[7],
+      notas: r[8], grupoId: r[9] || r[0]  // fallback al id propio para ventas legacy
     }));
 
   if (params.cliente)    ventas = ventas.filter(v => String(v.cliente).toLowerCase().includes(params.cliente.toLowerCase()));
@@ -180,41 +181,58 @@ function getVentas(params) {
 }
 
 function saveVenta(data) {
-  const prodSheet  = getSheet(SHEET_PRODUCTOS);
-  const ventSheet  = getSheet(SHEET_VENTAS);
-  const movSheet   = getSheet(SHEET_MOVIMIENTOS);
+  const prodSheet = getSheet(SHEET_PRODUCTOS);
+  const ventSheet = getSheet(SHEET_VENTAS);
+  const movSheet  = getSheet(SHEET_MOVIMIENTOS);
 
-  const prod = findRow(prodSheet, 0, data.productoId);
-  if (!prod) return { success: false, error: 'Producto no encontrado' };
+  const items    = data.items;  // Array: [{ productoId, cantidad, precioUnit }]
+  const cliente  = data.cliente;
+  const fecha    = data.fecha || hoy();
+  const notas    = data.notas || '';
+  const grupoId  = generateId('G');  // ID compartido para agrupar la compra
 
-  const stockActual = parseInt(prod.row[4]);
-  const cantidad    = parseInt(data.cantidad);
+  // 1) Validar stock de TODOS los productos antes de tocar nada
+  const prodInfo = [];
+  for (const item of items) {
+    const prod = findRow(prodSheet, 0, item.productoId);
+    if (!prod) return { success: false, error: 'Producto no encontrado: ' + item.productoId };
+    const stockActual = parseInt(prod.row[4]);
+    const cantidad    = parseInt(item.cantidad);
+    if (stockActual < cantidad) {
+      return { success: false, error: 'Stock insuficiente para ' + prod.row[1] + '. Stock actual: ' + stockActual };
+    }
+    prodInfo.push({ prod, cantidad, precioUnit: parseFloat(item.precioUnit), nombre: prod.row[1] });
+  }
 
-  if (stockActual < cantidad)
-    return { success: false, error: `Stock insuficiente. Stock actual: ${stockActual}` };
+  // 2) Todo ok → registrar cada item
+  const stockUpdates = [];
+  for (let i = 0; i < items.length; i++) {
+    const info = prodInfo[i];
+    const stockActual = parseInt(info.prod.row[4]);
+    const nuevoStock  = stockActual - info.cantidad;
+    const total       = info.cantidad * info.precioUnit;
+    const ventaId     = generateId('V');
 
-  const nuevoStock = stockActual - cantidad;
-  const total      = cantidad * parseFloat(data.precioUnit);
-  const id         = generateId('V');
-  const fecha      = data.fecha || hoy();
+    // Fila en Ventas (columna 10 = grupoId)
+    ventSheet.appendRow([
+      ventaId, fecha, cliente, items[i].productoId, info.nombre,
+      info.cantidad, info.precioUnit, total, notas, grupoId
+    ]);
 
-  // Registrar venta
-  ventSheet.appendRow([
-    id, fecha, data.cliente, data.productoId, prod.row[1],
-    cantidad, parseFloat(data.precioUnit), total, data.notas || ''
-  ]);
+    // Actualizar stock
+    prodSheet.getRange(info.prod.index, 5).setValue(nuevoStock);
 
-  // Actualizar stock
-  prodSheet.getRange(prod.index, 5).setValue(nuevoStock);
+    // Movimiento
+    movSheet.appendRow([
+      generateId('M'), fecha, items[i].productoId, info.nombre,
+      'venta', info.cantidad, stockActual, nuevoStock,
+      'Venta #' + ventaId + ' — ' + cliente
+    ]);
 
-  // Registrar movimiento automático
-  movSheet.appendRow([
-    generateId('M'), fecha, data.productoId, prod.row[1],
-    'venta', cantidad, stockActual, nuevoStock,
-    `Venta #${id} — ${data.cliente}`
-  ]);
+    stockUpdates.push({ productoId: items[i].productoId, nuevoStock });
+  }
 
-  return { success: true, data: { id, nuevoStock } };
+  return { success: true, data: { grupoId, stockUpdates } };
 }
 
 // ── MOVIMIENTOS ──
