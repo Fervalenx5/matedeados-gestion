@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mate de a Dos — Iniciar sesión</title>
+  <meta name="description" content="Panel interno de gestión para Mate de a Dos." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+    /* Background decorative blobs */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 20%, rgba(196,151,42,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 85% 80%, rgba(45,74,40,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .login-wrap {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 400px; padding: 20px;
+    }
+
+    .login-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--color-border-light);
+      padding: 40px 36px 32px;
+      animation: modal-in .4s ease;
+    }
+
+    .login-logo { width: 160px; margin: 0 auto 28px; }
+
+    .login-title {
+      font-family: var(--font-heading);
+      font-size: 1.3rem; font-weight: 700;
+      text-align: center; margin-bottom: 4px;
+    }
+    .login-sub { text-align: center; color: var(--color-muted); font-size: 13px; margin-bottom: 28px; }
+
+    .login-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .btn-login {
+      width: 100%; padding: 11px; font-size: 14.5px; font-weight: 600;
+      background: var(--color-primary); color: #fff;
+      border: none; border-radius: var(--radius-md);
+      transition: background var(--transition-fast), transform .1s;
+      margin-top: 4px;
+    }
+    .btn-login:hover  { background: var(--color-primary-dark); }
+    .btn-login:active { transform: scale(.98); }
+
+    .login-error {
+      display: none; background: #FEECEC; color: #A94040;
+      border: 1px solid #F0A0A0; border-radius: var(--radius-sm);
+      padding: 10px 14px; font-size: 13px; text-align: center;
+    }
+    .login-error.visible { display: block; }
+
+    .login-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--color-muted); }
+
+    @keyframes modal-in { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @media (max-width: 440px) { .login-card { padding: 32px 20px 24px; } }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="assets/logo.png" alt="Mate de a Dos" class="login-logo" />
+      <h1 class="login-title">Panel de gestión</h1>
+      <p class="login-sub">Ingresá tus credenciales para continuar</p>
+
+      <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+
+      <form class="login-form" id="login-form" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label" for="username">Usuario</label>
+          <input id="username" type="text" class="form-control" placeholder="Tu usuario" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <input id="password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
+      </form>
+    </div>
+    <p class="login-footer">🧉 Mate de a Dos &copy; 2025</p>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Si ya está logueado, redirigir al dashboard
+    if (Auth.getSession()) window.location.href = 'dashboard.html';
+
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const err  = document.getElementById('login-error');
+      const btn  = document.getElementById('btn-login');
+
+      btn.disabled = true; btn.textContent = 'Ingresando…';
+
+      if (Auth.login(user, pass)) {
+        window.location.href = 'dashboard.html';
+      } else {
+        err.classList.add('visible');
+        btn.disabled = false; btn.textContent = 'Ingresar';
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+      }
+    });
+  </script>
+</body>
+</html>

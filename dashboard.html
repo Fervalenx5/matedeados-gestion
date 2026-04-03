@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Mate de a Dos</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/logo.png" alt="Mate de a Dos" class="sidebar-logo" />
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="productos.html" class="nav-item" data-page="productos"><span class="nav-icon">🧉</span> Productos</a>
+      <a href="ventas.html"   class="nav-item" data-page="ventas">  <span class="nav-icon">🛍️</span> Ventas</a>
+      <a href="stock.html"    class="nav-item" data-page="stock">   <span class="nav-icon">📦</span> Stock</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="btn-logout">↩ Cerrar sesión</button>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Topbar mobile -->
+  <header class="topbar">
+    <button class="btn-menu" id="btn-menu">☰</button>
+    <img src="assets/logo.png" alt="Mate de a Dos" class="topbar-logo" />
+  </header>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Resumen general del emprendimiento</p>
+      </div>
+      <div id="dash-date" class="text-muted text-sm"></div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid-4" id="metrics-grid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <div style="height:24px"></div>
+
+    <div class="grid-2" style="gap:20px; align-items:start">
+      <!-- Últimas ventas -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Últimas ventas</span>
+          <a href="ventas.html" class="btn btn-outline btn-sm">Ver todo</a>
+        </div>
+        <div id="ultimas-ventas"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- Stock bajo -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚠️ Stock bajo</span>
+          <a href="stock.html" class="btn btn-outline btn-sm">Gestionar</a>
+        </div>
+        <div id="stock-bajo"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

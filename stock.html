@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock — Mate de a Dos</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="assets/logo.png" alt="Mate de a Dos" class="sidebar-logo" /></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="productos.html" class="nav-item" data-page="productos"><span class="nav-icon">🧉</span> Productos</a>
+      <a href="ventas.html"   class="nav-item" data-page="ventas">  <span class="nav-icon">🛍️</span> Ventas</a>
+      <a href="stock.html"    class="nav-item" data-page="stock">   <span class="nav-icon">📦</span> Stock</a>
+    </nav>
+    <div class="sidebar-footer"><button class="btn-logout" id="btn-logout">↩ Cerrar sesión</button></div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <header class="topbar">
+    <button class="btn-menu" id="btn-menu">☰</button>
+    <img src="assets/logo.png" alt="Mate de a Dos" class="topbar-logo" />
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div><h1>Control de Stock</h1><p>Registrá movimientos manuales y consultá el historial</p></div>
+    </div>
+
+    <!-- Formulario movimiento manual -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header"><span class="card-title">📦 Registrar movimiento</span></div>
+      <form id="form-movimiento" class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="mov-producto">Producto <span class="required">*</span></label>
+          <select id="mov-producto" class="form-control" required>
+            <option value="">— Seleccioná un producto —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mov-tipo">Tipo de movimiento <span class="required">*</span></label>
+          <select id="mov-tipo" class="form-control" required>
+            <option value="entrada">📥 Entrada (compra/reposición)</option>
+            <option value="salida">📤 Salida (pérdida/retiro)</option>
+            <option value="ajuste">⚖️ Ajuste manual (fijar valor exacto)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mov-cantidad">Cantidad <span class="required">*</span></label>
+          <input id="mov-cantidad" type="number" class="form-control" placeholder="1" min="1" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mov-fecha">Fecha</label>
+          <input id="mov-fecha" type="date" class="form-control" />
+        </div>
+        <div class="form-group span-2">
+          <label class="form-label" for="mov-motivo">Motivo</label>
+          <input id="mov-motivo" type="text" class="form-control" placeholder="Ej: Compra a proveedor, rotura, inventario…" />
+        </div>
+        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+          <button type="submit" class="btn btn-accent" id="btn-guardar-mov">✅ Registrar movimiento</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Historial de movimientos -->
+    <div class="section-title">Historial de movimientos</div>
+
+    <div class="filter-bar">
+      <div class="form-group">
+        <label class="form-label">Producto</label>
+        <select id="fmov-producto" class="form-control">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select id="fmov-tipo" class="form-control">
+          <option value="">Todos</option>
+          <option value="entrada">Entrada</option>
+          <option value="salida">Salida</option>
+          <option value="ajuste">Ajuste</option>
+          <option value="venta">Venta</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-sm" id="btn-filtrar-mov" style="align-self:flex-end">Filtrar</button>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock ant.</th><th>Stock nuevo</th><th>Motivo</th></tr>
+        </thead>
+        <tbody id="tbody-movimientos">
+          <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/stock.js"></script>
+</body>
+</html>
