@@ -52,8 +52,9 @@
 .sidebar-overlay {
   display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
   z-index: 199; opacity: 0; transition: opacity var(--transition);
+  pointer-events: none;  /* invisible = no captura toques */
 }
-.sidebar-overlay.visible { opacity: 1; }
+.sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
 
 /* ══════════════════════════════
    TOPBAR (mobile)
