@@ -14,16 +14,35 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand"><img src="assets/logo.png" alt="Mate de a Dos" class="sidebar-logo" /></div>
     <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</a>
-      <a href="productos.html" class="nav-item" data-page="productos"><span class="nav-icon">🧉</span> Productos</a>
-      <a href="ventas.html"   class="nav-item" data-page="ventas">  <span class="nav-icon">🛍️</span> Ventas</a>
-      <a href="stock.html"    class="nav-item" data-page="stock">   <span class="nav-icon">📦</span> Stock</a>
+      <a href="dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg></span>
+        Dashboard
+      </a>
+      <a href="productos.html" class="nav-item" data-page="productos">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+        Productos
+      </a>
+      <a href="ventas.html" class="nav-item" data-page="ventas">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        Ventas
+      </a>
+      <a href="stock.html" class="nav-item" data-page="stock">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
+        Stock
+      </a>
     </nav>
-    <div class="sidebar-footer"><button class="btn-logout" id="btn-logout">↩ Cerrar sesión</button></div>
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="btn-logout">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <header class="topbar">
-    <button class="btn-menu" id="btn-menu">☰</button>
+    <button class="btn-menu" id="btn-menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <img src="assets/logo.png" alt="Mate de a Dos" class="topbar-logo" />
   </header>
 
@@ -34,7 +53,12 @@
 
     <!-- Formulario nueva venta multi-producto -->
     <div class="card" style="margin-bottom:24px">
-      <div class="card-header"><span class="card-title">🛒 Nueva venta</span></div>
+      <div class="card-header">
+        <span class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          Nueva venta
+        </span>
+      </div>
       <div style="padding:16px">
 
         <!-- Datos del cliente -->
@@ -50,8 +74,11 @@
         </div>
 
         <!-- Agregar producto al carrito -->
-        <div style="background:var(--color-surface-2); border-radius:var(--radius-md); padding:14px; margin-bottom:14px">
-          <p style="font-weight:600; font-size:13px; color:var(--color-muted); margin-bottom:10px">➕ Agregar producto al carrito</p>
+        <div style="background:var(--color-surface-2); border-radius:var(--radius-md); padding:14px; margin-bottom:14px; border: 1px solid var(--color-border-light)">
+          <p style="font-weight:600; font-size:13px; color:var(--color-muted); margin-bottom:10px; display:flex; align-items:center; gap:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar producto al carrito
+          </p>
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label" for="cart-producto">Producto</label>
@@ -68,7 +95,10 @@
               <input id="cart-precio" type="number" class="form-control" placeholder="0" min="0" />
             </div>
             <div class="form-group" style="display:flex; align-items:flex-end">
-              <button type="button" class="btn btn-primary btn-sm" id="btn-agregar-carrito" style="width:100%">➕ Agregar</button>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-agregar-carrito" style="width:100%">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Agregar
+              </button>
             </div>
           </div>
         </div>
@@ -99,7 +129,10 @@
         </div>
         <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button type="button" class="btn btn-outline" id="btn-limpiar-venta">Limpiar</button>
-          <button type="button" class="btn btn-accent" id="btn-registrar-venta" disabled>✅ Registrar venta</button>
+          <button type="button" class="btn btn-accent" id="btn-registrar-venta" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Registrar venta
+          </button>
         </div>
       </div>
     </div>

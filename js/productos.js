@@ -13,7 +13,7 @@ async function loadProductos() {
     renderTabla();
   } catch (err) {
     document.getElementById('tbody-productos').innerHTML =
-      `<tr><td colspan="8"><div class="alert alert-danger" style="margin:16px">⚠️ ${err.message}</div></td></tr>`;
+      `<tr><td colspan="8"><div class="alert alert-danger" style="margin:16px">${SVG_ICONS.alert} ${err.message}</div></td></tr>`;
     showToast(err.message, 'error');
   }
 }
@@ -23,16 +23,17 @@ function renderTabla() {
   const tbody = document.getElementById('tbody-productos');
   if (!productos.length) {
     tbody.innerHTML = `<tr><td colspan="8">
-      <div class="empty-state"><span class="empty-icon">🧉</span>
+      <div class="empty-state"><span class="empty-icon">${SVG_ICONS.tag}</span>
         <h3>Sin productos</h3><p>Creá el primero con el botón "Nuevo producto".</p>
       </div></td></tr>`;
     return;
   }
   tbody.innerHTML = productos.map(p => {
     const stockBajo = Number(p.stock) <= Number(p.stockMin);
+    const placeholderIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
     const fotoEl = p.foto
-      ? `<img src="${p.foto}" class="product-thumb" alt="${p.nombre}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="product-thumb-placeholder" style="display:none">🧉</div>`
-      : `<div class="product-thumb-placeholder">🧉</div>`;
+      ? `<img src="${p.foto}" class="product-thumb" alt="${p.nombre}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="product-thumb-placeholder" style="display:none">${placeholderIcon}</div>`
+      : `<div class="product-thumb-placeholder">${placeholderIcon}</div>`;
     return `<tr>
       <td>${fotoEl}</td>
       <td><strong>${p.nombre}</strong></td>
@@ -42,8 +43,8 @@ function renderTabla() {
       <td class="text-muted">${p.stockMin ?? 0}</td>
       <td><span class="badge ${p.activo !== false && p.activo !== 'FALSE' ? 'badge-success' : 'badge-muted'}">${p.activo !== false && p.activo !== 'FALSE' ? 'Activo' : 'Inactivo'}</span></td>
       <td><div class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="openEdit('${p.id}')" title="Editar">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('${p.id}')" title="Eliminar">🗑️</button>
+        <button class="btn btn-outline btn-sm btn-icon" onclick="openEdit('${p.id}')" title="Editar">${SVG_ICONS.edit}</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('${p.id}')" title="Eliminar">${SVG_ICONS.trash}</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -117,13 +118,14 @@ document.getElementById('btn-guardar-prod').addEventListener('click', async () =
 
   try {
     await API.saveProducto(data);
-    showToast(editingId ? 'Producto actualizado ✅' : 'Producto creado ✅');
+    showToast(editingId ? 'Producto actualizado' : 'Producto creado');
     closeModal();
     await loadProductos();
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
-    btn.disabled = false; btn.textContent = '💾 Guardar producto';
+    btn.disabled = false;
+    btn.innerHTML = `${SVG_ICONS.save} Guardar producto`;
   }
 });
 

@@ -95,13 +95,15 @@ function renderCarrito() {
   container.style.display = 'block';
   btnRegistrar.disabled = false;
 
+  const removeIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
   tbody.innerHTML = carrito.map((item, i) => `
     <tr>
       <td>${item.productoNombre}</td>
       <td>${item.cantidad}</td>
       <td>${formatMoney(item.precioUnit)}</td>
       <td class="text-accent font-semi">${formatMoney(item.subtotal)}</td>
-      <td><button onclick="removeFromCart(${i})" class="btn btn-outline btn-sm" style="padding:2px 6px; font-size:12px; color:var(--color-danger)">✕</button></td>
+      <td><button onclick="removeFromCart(${i})" class="btn btn-outline btn-sm" style="padding:4px 6px; color:var(--color-danger)">${removeIcon}</button></td>
     </tr>
   `).join('');
 
@@ -132,7 +134,7 @@ document.getElementById('btn-registrar-venta').addEventListener('click', async (
 
     const res = await API.saveVenta({ cliente, fecha, notas, items });
     const totalVenta = carrito.reduce((s, i) => s + i.subtotal, 0);
-    showToast(`Venta registrada ✅ — ${carrito.length} producto(s) — Total: ${formatMoney(totalVenta)}`);
+    showToast(`Venta registrada — ${carrito.length} producto(s) — Total: ${formatMoney(totalVenta)}`);
 
     // Actualizar stock local
     if (res && res.stockUpdates) {
@@ -149,7 +151,7 @@ document.getElementById('btn-registrar-venta').addEventListener('click', async (
     showToast(err.message, 'error');
   } finally {
     btn.disabled = !carrito.length;
-    btn.textContent = '✅ Registrar venta';
+    btn.innerHTML = `${SVG_ICONS.check} Registrar venta`;
   }
 });
 
@@ -175,7 +177,7 @@ async function loadVentas(filters = {}) {
     renderVentasAgrupadas(ventas);
   } catch (err) {
     showToast(err.message, 'error');
-    listContainer.innerHTML = `<div class="alert alert-danger" style="margin:16px">⚠️ ${err.message}</div>`;
+    listContainer.innerHTML = `<div class="alert alert-danger" style="margin:16px">${SVG_ICONS.alert} ${err.message}</div>`;
   }
 }
 
@@ -184,9 +186,11 @@ function renderVentasAgrupadas(ventas) {
 
   if (!ventas.length) {
     container.innerHTML = `<div class="card" style="padding:32px;text-align:center">
-      <span style="font-size:2.5rem">🛍️</span>
-      <h3 style="margin:8px 0 4px">Sin ventas</h3>
-      <p class="text-muted">No hay ventas que coincidan con los filtros.</p>
+      <div class="empty-state">
+        <span class="empty-icon">${SVG_ICONS.bag}</span>
+        <h3>Sin ventas</h3>
+        <p class="text-muted">No hay ventas que coincidan con los filtros.</p>
+      </div>
     </div>`;
     return;
   }
@@ -231,8 +235,8 @@ function renderVentasAgrupadas(ventas) {
       </div>
       <div style="padding:8px 16px 12px">
         ${itemsHtml}
-        ${g.notas ? `<p class="text-muted text-sm" style="margin-top:8px; font-style:italic">📝 ${g.notas}</p>` : ''}
-        ${g.items.length > 1 ? `<p class="text-sm text-muted" style="margin-top:6px">🛒 ${g.items.length} productos</p>` : ''}
+        ${g.notas ? `<p class="text-muted text-sm" style="margin-top:8px; font-style:italic; display:flex; align-items:center; gap:4px">${SVG_ICONS.fileText} ${g.notas}</p>` : ''}
+        ${g.items.length > 1 ? `<p class="text-sm text-muted" style="margin-top:6px; display:flex; align-items:center; gap:4px">${SVG_ICONS.cart} ${g.items.length} productos</p>` : ''}
       </div>
     </div>`;
   }).join('');

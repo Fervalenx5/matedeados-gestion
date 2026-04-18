@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,88 +8,276 @@
   <meta name="description" content="Panel interno de gestión para Mate de a Dos." />
   <link rel="stylesheet" href="css/main.css" />
   <style>
-    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
 
-    /* Background decorative blobs */
+    /* Atmospheric gradient blobs */
     body::before {
       content: '';
-      position: fixed; inset: 0; z-index: 0;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 10% 20%, rgba(196,151,42,.18) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 60% at 85% 80%, rgba(45,74,40,.15) 0%, transparent 70%);
+        radial-gradient(ellipse 55% 45% at 10% 20%, rgba(196, 151, 42, .14) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 55% at 85% 75%, rgba(45, 74, 40, .12) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 35% at 50% 50%, rgba(196, 151, 42, .05) 0%, transparent 60%);
       pointer-events: none;
     }
 
+    /* Floating decorative circles */
+    .login-bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .login-bg-orb-1 {
+      width: 300px;
+      height: 300px;
+      top: -80px;
+      right: -60px;
+      background: radial-gradient(circle, rgba(45, 74, 40, .08) 0%, transparent 70%);
+      animation: float-orb 12s ease-in-out infinite;
+    }
+
+    .login-bg-orb-2 {
+      width: 200px;
+      height: 200px;
+      bottom: -40px;
+      left: -40px;
+      background: radial-gradient(circle, rgba(196, 151, 42, .1) 0%, transparent 70%);
+      animation: float-orb 10s ease-in-out infinite reverse;
+    }
+
+    .login-bg-orb-3 {
+      width: 120px;
+      height: 120px;
+      top: 30%;
+      left: 15%;
+      background: radial-gradient(circle, rgba(45, 74, 40, .06) 0%, transparent 70%);
+      animation: float-orb 14s ease-in-out infinite 2s;
+    }
+
+    @keyframes float-orb {
+      0%, 100% { transform: translate(0, 0); }
+      33%      { transform: translate(12px, -8px); }
+      66%      { transform: translate(-8px, 6px); }
+    }
+
     .login-wrap {
-      position: relative; z-index: 1;
-      width: 100%; max-width: 400px; padding: 20px;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
     }
 
     .login-card {
-      background: var(--color-surface);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-xl);
-      border: 1px solid var(--color-border-light);
-      padding: 40px 36px 32px;
-      animation: modal-in .4s ease;
+      border: 1px solid var(--glass-border);
+      padding: 44px 36px 36px;
+      animation: modal-in .5s cubic-bezier(.21, 1.02, .73, 1);
     }
 
-    .login-logo { width: 160px; margin: 0 auto 28px; }
+    .login-logo {
+      width: 160px;
+      margin: 0 auto 28px;
+    }
 
     .login-title {
       font-family: var(--font-heading);
-      font-size: 1.3rem; font-weight: 700;
-      text-align: center; margin-bottom: 4px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
     }
-    .login-sub { text-align: center; color: var(--color-muted); font-size: 13px; margin-bottom: 28px; }
 
-    .login-form { display: flex; flex-direction: column; gap: 16px; }
+    .login-sub {
+      text-align: center;
+      color: var(--color-muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Input with icon */
+    .login-input-wrap {
+      position: relative;
+    }
+
+    .login-input-wrap .form-control {
+      padding-left: 40px;
+    }
+
+    .login-input-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      transition: color var(--transition-fast);
+    }
+
+    .login-input-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.75;
+    }
+
+    .login-input-wrap .form-control:focus ~ .login-input-icon,
+    .login-input-wrap:focus-within .login-input-icon {
+      color: var(--color-accent);
+    }
 
     .btn-login {
-      width: 100%; padding: 11px; font-size: 14.5px; font-weight: 600;
-      background: var(--color-primary); color: #fff;
-      border: none; border-radius: var(--radius-md);
-      transition: background var(--transition-fast), transform .1s;
+      width: 100%;
+      padding: 12px;
+      font-size: 14.5px;
+      font-weight: 600;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
       margin-top: 4px;
+      position: relative;
+      overflow: hidden;
     }
-    .btn-login:hover  { background: var(--color-primary-dark); }
-    .btn-login:active { transform: scale(.98); }
+
+    .btn-login:hover {
+      background: var(--color-primary-dark);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .btn-login:active {
+      transform: scale(.98);
+    }
+
+    /* Shine effect on button */
+    .btn-login::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      transition: none;
+    }
+
+    .btn-login:hover::after {
+      animation: btn-shine .6s ease forwards;
+    }
+
+    @keyframes btn-shine {
+      to { left: 100%; }
+    }
 
     .login-error {
-      display: none; background: #FEECEC; color: #A94040;
-      border: 1px solid #F0A0A0; border-radius: var(--radius-sm);
-      padding: 10px 14px; font-size: 13px; text-align: center;
+      display: none;
+      background: #FEECEC;
+      color: #A94040;
+      border: 1px solid rgba(240, 160, 160, .5);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      text-align: center;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
     }
-    .login-error.visible { display: block; }
 
-    .login-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--color-muted); }
+    .login-error svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      stroke-width: 2;
+    }
 
-    @keyframes modal-in { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
-    @media (max-width: 440px) { .login-card { padding: 32px 20px 24px; } }
+    .login-error.visible {
+      display: flex;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--color-muted);
+      letter-spacing: .3px;
+    }
+
+    .login-footer-brand {
+      font-weight: 600;
+      color: var(--color-text-2);
+    }
+
+    @media (max-width: 440px) {
+      .login-card {
+        padding: 32px 20px 24px;
+      }
+    }
   </style>
 </head>
+
 <body>
+  <div class="login-bg-orb login-bg-orb-1"></div>
+  <div class="login-bg-orb login-bg-orb-2"></div>
+  <div class="login-bg-orb login-bg-orb-3"></div>
+
   <div class="login-wrap">
     <div class="login-card">
       <img src="assets/logo.png" alt="Mate de a Dos" class="login-logo" />
       <h1 class="login-title">Panel de gestión</h1>
       <p class="login-sub">Ingresá tus credenciales para continuar</p>
 
-      <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+      <div class="login-error" id="login-error">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Usuario o contraseña incorrectos
+      </div>
 
       <form class="login-form" id="login-form" autocomplete="off">
         <div class="form-group">
           <label class="form-label" for="username">Usuario</label>
-          <input id="username" type="text" class="form-control" placeholder="Tu usuario" autocomplete="username" required />
+          <div class="login-input-wrap">
+            <input id="username" type="text" class="form-control" placeholder="Tu usuario" autocomplete="username" required />
+            <span class="login-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="password">Contraseña</label>
-          <input id="password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required />
+          <div class="login-input-wrap">
+            <input id="password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required />
+            <span class="login-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+          </div>
         </div>
         <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
       </form>
     </div>
-    <p class="login-footer">🧉 Mate de a Dos &copy; 2025</p>
+    <p class="login-footer"><span class="login-footer-brand">Mate de a Dos</span> &copy; 2025</p>
   </div>
 
   <script src="js/config.js"></script>
@@ -101,8 +290,8 @@
       e.preventDefault();
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
-      const err  = document.getElementById('login-error');
-      const btn  = document.getElementById('btn-login');
+      const err = document.getElementById('login-error');
+      const btn = document.getElementById('btn-login');
 
       btn.disabled = true; btn.textContent = 'Ingresando…';
 
@@ -117,4 +306,5 @@
     });
   </script>
 </body>
+
 </html>

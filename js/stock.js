@@ -48,7 +48,7 @@ document.getElementById('form-movimiento').addEventListener('submit', async func
 
   try {
     const res = await API.saveMovimiento(data);
-    showToast(`Movimiento registrado ✅ — Stock nuevo: ${res.nuevoStock}`);
+    showToast(`Movimiento registrado — Stock nuevo: ${res.nuevoStock}`);
     // reset
     document.getElementById('form-movimiento').reset();
     document.getElementById('mov-fecha').value = todayISO();
@@ -60,7 +60,8 @@ document.getElementById('form-movimiento').addEventListener('submit', async func
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
-    btn.disabled = false; btn.textContent = '✅ Registrar movimiento';
+    btn.disabled = false;
+    btn.innerHTML = `${SVG_ICONS.check} Registrar movimiento`;
   }
 });
 
@@ -74,7 +75,7 @@ async function loadMovimientos(filters = {}) {
   } catch (err) {
     showToast(err.message, 'error');
     document.getElementById('tbody-movimientos').innerHTML =
-      `<tr><td colspan="7"><div class="alert alert-danger" style="margin:16px">⚠️ ${err.message}</div></td></tr>`;
+      `<tr><td colspan="7"><div class="alert alert-danger" style="margin:16px">${SVG_ICONS.alert} ${err.message}</div></td></tr>`;
   }
 }
 
@@ -82,13 +83,18 @@ function renderMovimientos(movs) {
   const tbody = document.getElementById('tbody-movimientos');
   if (!movs.length) {
     tbody.innerHTML = `<tr><td colspan="7">
-      <div class="empty-state"><span class="empty-icon">📦</span>
+      <div class="empty-state"><span class="empty-icon">${SVG_ICONS.package}</span>
         <h3>Sin movimientos</h3><p>No hay movimientos registrados aún.</p>
       </div></td></tr>`;
     return;
   }
 
-  const iconos = { entrada: '📥', salida: '📤', ajuste: '⚖️', venta: '🛍️' };
+  const tipoLabels = {
+    entrada: 'Entrada',
+    salida:  'Salida',
+    ajuste:  'Ajuste',
+    venta:   'Venta'
+  };
 
   tbody.innerHTML = movs.map(m => {
     const diff = Number(m.stockNuevo) - Number(m.stockAnterior);
@@ -96,7 +102,7 @@ function renderMovimientos(movs) {
     return `<tr>
       <td class="text-sm">${formatDate(m.fecha)}</td>
       <td><strong>${m.productoNombre}</strong></td>
-      <td><span class="badge badge-${m.tipo}">${iconos[m.tipo] ?? ''} ${m.tipo}</span></td>
+      <td><span class="badge badge-${m.tipo}">${tipoLabels[m.tipo] ?? m.tipo}</span></td>
       <td class="font-semi">${m.cantidad}</td>
       <td class="text-muted">${m.stockAnterior}</td>
       <td>

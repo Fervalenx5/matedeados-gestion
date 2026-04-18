@@ -41,39 +41,39 @@ async function loadDashboard() {
   } catch (err) {
     showToast(err.message, 'error');
     document.getElementById('metrics-grid').innerHTML =
-      `<div class="alert alert-danger" style="grid-column:1/-1">⚠️ ${err.message}</div>`;
+      `<div class="alert alert-danger" style="grid-column:1/-1">${SVG_ICONS.alert} ${err.message}</div>`;
   }
 }
 
 function renderMetrics(d) {
   const grid = document.getElementById('metrics-grid');
   grid.innerHTML = `
-    <div class="metric-card">
-      <div class="metric-icon gold">💰</div>
+    <div class="metric-card anim-fade-in anim-delay-1">
+      <div class="metric-icon gold">${SVG_ICONS.dollar}</div>
       <div class="metric-body">
         <div class="metric-label">Ventas hoy</div>
         <div class="metric-value">${formatMoney(d.ventasHoy?.total ?? 0)}</div>
         <div class="metric-sub">${d.ventasHoy?.cantidad ?? 0} transacciones</div>
       </div>
     </div>
-    <div class="metric-card">
-      <div class="metric-icon green">📅</div>
+    <div class="metric-card anim-fade-in anim-delay-2">
+      <div class="metric-icon green">${SVG_ICONS.calendar}</div>
       <div class="metric-body">
         <div class="metric-label">Ventas del mes</div>
         <div class="metric-value">${formatMoney(d.ventasMes?.total ?? 0)}</div>
         <div class="metric-sub">${d.ventasMes?.cantidad ?? 0} transacciones</div>
       </div>
     </div>
-    <div class="metric-card">
-      <div class="metric-icon primary">🧉</div>
+    <div class="metric-card anim-fade-in anim-delay-3">
+      <div class="metric-icon primary">${SVG_ICONS.tag}</div>
       <div class="metric-body">
         <div class="metric-label">Productos activos</div>
         <div class="metric-value">${d.productosActivos ?? 0}</div>
         <div class="metric-sub">en catálogo</div>
       </div>
     </div>
-    <div class="metric-card">
-      <div class="metric-icon red">⚠️</div>
+    <div class="metric-card anim-fade-in anim-delay-4">
+      <div class="metric-icon red">${SVG_ICONS.alertTri}</div>
       <div class="metric-body">
         <div class="metric-label">Stock bajo</div>
         <div class="metric-value ${(d.stockBajo ?? 0) > 0 ? 'text-danger' : 'text-success'}">${d.stockBajo ?? 0}</div>
@@ -85,7 +85,7 @@ function renderMetrics(d) {
 function renderUltimasVentas(ventas) {
   const el = document.getElementById('ultimas-ventas');
   if (!ventas.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-icon">🛍️</span><h3>Sin ventas aún</h3><p>Registrá tu primera venta.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-icon">${SVG_ICONS.bag}</span><h3>Sin ventas aún</h3><p>Registrá tu primera venta.</p></div>`;
     return;
   }
   el.innerHTML = `
@@ -107,7 +107,7 @@ function renderUltimasVentas(ventas) {
 function renderStockBajo(lista) {
   const el = document.getElementById('stock-bajo');
   if (!lista.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-icon">✅</span><h3>Todo en orden</h3><p>Todos los productos tienen stock suficiente.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-icon">${SVG_ICONS.checkOk}</span><h3>Todo en orden</h3><p>Todos los productos tienen stock suficiente.</p></div>`;
     return;
   }
   el.innerHTML = `
