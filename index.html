@@ -66,9 +66,19 @@
     }
 
     @keyframes float-orb {
-      0%, 100% { transform: translate(0, 0); }
-      33%      { transform: translate(12px, -8px); }
-      66%      { transform: translate(-8px, 6px); }
+
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      33% {
+        transform: translate(12px, -8px);
+      }
+
+      66% {
+        transform: translate(-8px, 6px);
+      }
     }
 
     .login-wrap {
@@ -144,7 +154,7 @@
       stroke-width: 1.75;
     }
 
-    .login-input-wrap .form-control:focus ~ .login-input-icon,
+    .login-input-wrap .form-control:focus~.login-input-icon,
     .login-input-wrap:focus-within .login-input-icon {
       color: var(--color-accent);
     }
@@ -181,7 +191,7 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .12), transparent);
       transition: none;
     }
 
@@ -190,7 +200,9 @@
     }
 
     @keyframes btn-shine {
-      to { left: 100%; }
+      to {
+        left: 100%;
+      }
     }
 
     .login-error {
@@ -251,7 +263,12 @@
       <p class="login-sub">Ingresá tus credenciales para continuar</p>
 
       <div class="login-error" id="login-error">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
         Usuario o contraseña incorrectos
       </div>
 
@@ -259,25 +276,35 @@
         <div class="form-group">
           <label class="form-label" for="username">Usuario</label>
           <div class="login-input-wrap">
-            <input id="username" type="text" class="form-control" placeholder="Tu usuario" autocomplete="username" required />
+            <input id="username" type="text" class="form-control" placeholder="Tu usuario" autocomplete="username"
+              required />
             <span class="login-input-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </span>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="password">Contraseña</label>
           <div class="login-input-wrap">
-            <input id="password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required />
+            <input id="password" type="password" class="form-control" placeholder="••••••••"
+              autocomplete="current-password" required />
             <span class="login-input-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
             </span>
           </div>
         </div>
         <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
       </form>
     </div>
-    <p class="login-footer"><span class="login-footer-brand">Mate de a Dos</span> &copy; 2025</p>
+    <p class="login-footer"><span class="login-footer-brand">Mate de a Dos</span> &copy; 2026</p>
   </div>
 
   <script src="js/config.js"></script>

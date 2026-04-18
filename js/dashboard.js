@@ -5,6 +5,40 @@ initSidebar('dashboard');
 document.getElementById('dash-date').textContent =
   new Date().toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
+/* ─── Gastos (localStorage) ─── */
+const GASTOS_KEY = 'mda_gastos';
+
+function getGastos() {
+  try {
+    return JSON.parse(localStorage.getItem(GASTOS_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveGastos(gastos) {
+  localStorage.setItem(GASTOS_KEY, JSON.stringify(gastos));
+}
+
+function addGasto(gasto) {
+  const gastos = getGastos();
+  gasto.id = 'EX' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
+  gastos.push(gasto);
+  saveGastos(gastos);
+  return gasto;
+}
+
+function deleteGasto(id) {
+  const gastos = getGastos().filter(g => g.id !== id);
+  saveGastos(gastos);
+}
+
+function getGastosMes(mesISO) {
+  return getGastos().filter(g => (g.fecha || '').substring(0, 7) === mesISO);
+}
+
+/* ─── Dashboard principal ─── */
+
+let cachedVentasMesTotal = 0;
+
 async function loadDashboard() {
   try {
     // Traer datos del dashboard Y todas las ventas en paralelo
@@ -35,9 +69,13 @@ async function loadDashboard() {
     d.ventasHoy = { cantidad: cantHoy, total: totalHoy };
     d.ventasMes = { cantidad: cantMes, total: totalMes };
 
+    // Cache para profit
+    cachedVentasMesTotal = totalMes;
+
     renderMetrics(d);
     renderUltimasVentas(d.ultimasVentas ?? []);
     renderStockBajo(d.stockBajoList ?? []);
+    renderProfitSection();
   } catch (err) {
     showToast(err.message, 'error');
     document.getElementById('metrics-grid').innerHTML =
@@ -124,5 +162,102 @@ function renderStockBajo(lista) {
       </tbody>
     </table></div>`;
 }
+
+/* ─── Profit / Expenses Section ─── */
+
+function renderProfitSection() {
+  const mesISO = todayISO().substring(0, 7);
+
+  // Month label
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const [y, m] = mesISO.split('-');
+  document.getElementById('profit-month-label').textContent = `${monthNames[parseInt(m) - 1]} ${y}`;
+
+  // Calculate
+  const gastosMes = getGastosMes(mesISO);
+  const totalGastos = gastosMes.reduce((s, g) => s + parseFloat(g.monto || 0), 0);
+  const ingresos = cachedVentasMesTotal;
+  const neto = ingresos - totalGastos;
+
+  // Update profit summary
+  document.getElementById('profit-ingresos').textContent = formatMoney(ingresos);
+  document.getElementById('profit-gastos').textContent = formatMoney(totalGastos);
+
+  const netoEl = document.getElementById('profit-neto');
+  netoEl.textContent = formatMoney(neto);
+  netoEl.className = 'profit-value ' + (neto >= 0 ? 'profit-positive' : 'profit-negative');
+
+  // Render expenses list
+  renderGastosList(gastosMes);
+}
+
+function renderGastosList(gastos) {
+  const el = document.getElementById('gastos-list');
+  if (!gastos.length) {
+    el.innerHTML = `<div class="empty-state" style="padding: 24px 16px">
+      <span class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+      <h3>Sin gastos registrados</h3>
+      <p>Agregá tus gastos de compra de stock para ver la ganancia.</p>
+    </div>`;
+    return;
+  }
+
+  // Sort by date desc
+  const sorted = [...gastos].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+
+  el.innerHTML = `
+    <div class="table-container" style="box-shadow:none; border:none">
+    <table>
+      <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th></th></tr></thead>
+      <tbody>
+        ${sorted.map(g => `
+          <tr>
+            <td class="text-sm">${formatDate(g.fecha)}</td>
+            <td>${g.descripcion}</td>
+            <td class="font-semi text-danger">${formatMoney(g.monto)}</td>
+            <td>
+              <button class="btn btn-icon btn-danger btn-delete-gasto" data-id="${g.id}" title="Eliminar gasto">
+                ${SVG_ICONS.trash}
+              </button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+
+  // Attach delete handlers
+  el.querySelectorAll('.btn-delete-gasto').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      deleteGasto(id);
+      showToast('Gasto eliminado', 'success');
+      renderProfitSection();
+    });
+  });
+}
+
+/* ─── Form: agregar gasto ─── */
+document.getElementById('form-gasto').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const desc = document.getElementById('gasto-desc').value.trim();
+  const monto = parseFloat(document.getElementById('gasto-monto').value);
+  const fecha = document.getElementById('gasto-fecha').value || todayISO();
+
+  if (!desc || isNaN(monto) || monto <= 0) {
+    showToast('Completá todos los campos correctamente.', 'warning');
+    return;
+  }
+
+  addGasto({ descripcion: desc, monto, fecha });
+  showToast('Gasto registrado correctamente', 'success');
+
+  // Reset form
+  document.getElementById('form-gasto').reset();
+  document.getElementById('gasto-fecha').value = todayISO();
+
+  renderProfitSection();
+});
+
+// Set default date on load
+document.getElementById('gasto-fecha').value = todayISO();
 
 loadDashboard();
